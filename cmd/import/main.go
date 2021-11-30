@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/lffranca/genealogicaltree/pkg/ggin"
+	"context"
 	"github.com/lffranca/genealogicaltree/pkg/ggogm"
 	"log"
 	"os"
@@ -31,28 +31,18 @@ func main() {
 		}
 	}()
 
-	specPath := os.Getenv("SPEC_PATH")
-
-	server, err := ggin.New(ggin.Options{
-		SpecPath:         &specPath,
-		PersonRepository: clientGraphDB.Person,
-	})
-	if err != nil {
+	ctx := context.Background()
+	if err := clientGraphDB.Init.InsertData(ctx); err != nil {
 		log.Panicln(err)
 	}
 
-	addresses := os.Getenv("ADDRESSES")
-	if err := server.Run(addresses); err != nil {
-		log.Panicln(err)
-	}
+	log.Println("importing successfully")
 }
 
 func init() {
 	for _, envVar := range []string{
 		"GRAPH_DB_HOST",
 		"GRAPH_DB_PORT",
-		"ADDRESSES",
-		"SPEC_PATH",
 	} {
 		if _, ok := os.LookupEnv(envVar); !ok {
 			log.Panicf("Required enviroment variable not set: %s\n", envVar)

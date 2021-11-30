@@ -14,6 +14,7 @@ func New(options Options) (*Client, error) {
 	client.common.Client = client
 	client.specPath = options.SpecPath
 	client.person = (*personService)(&client.common)
+	client.personRepository = options.PersonRepository
 
 	client.app = gin.Default()
 	client.routes()
@@ -22,10 +23,11 @@ func New(options Options) (*Client, error) {
 }
 
 type Client struct {
-	common   service
-	app      *gin.Engine
-	specPath *string
-	person   *personService
+	common           service
+	app              *gin.Engine
+	specPath         *string
+	person           *personService
+	personRepository PersonRepository
 }
 
 func (pkg *Client) routes() {
@@ -48,7 +50,13 @@ func (pkg *Client) routes() {
 	{
 		person := v1.Group("/person")
 		{
-			person.GET("", pkg.person.listGET)
+			person.GET("", pkg.person.listJSONGET, pkg.person.listXMLGET)
+			person.GET(
+				"/shortest-path/:name1/to/:name2",
+				pkg.person.shortestPathJSONGET,
+				pkg.person.shortestPathXMLGET,
+			)
+			person.GET("/:name", pkg.person.itemJSONGET, pkg.person.itemXMLGET)
 		}
 	}
 }

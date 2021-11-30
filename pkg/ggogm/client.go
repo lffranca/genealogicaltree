@@ -33,6 +33,10 @@ type Client struct {
 	Person *PersonService
 }
 
+func (pkg *Client) Close() error {
+	return pkg.gogm.Close()
+}
+
 type service struct {
 	Client *Client
 }

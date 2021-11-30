@@ -1,0 +1,54 @@
+version: "3.8"
+
+networks:
+  tree:
+
+volumes:
+  neo4j:
+
+services:
+  neo4j:
+    image: neo4j
+    environment:
+      NEO4J_AUTH: "none"
+    volumes:
+      - neo4j:/data
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    healthcheck:
+      test: [ "CMD", "cypher-shell", "match (n) return count(n)" ]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 40s
+    networks:
+      tree:
+
+  app_import:
+    build:
+      context: .
+      dockerfile: ./cmd/import/Dockerfile
+    environment:
+      GRAPH_DB_HOST: ${GRAPH_DB_HOST:-neo4j}
+      GRAPH_DB_PORT: ${GRAPH_DB_PORT:-7687}
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    networks:
+      tree:
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      GRAPH_DB_HOST: ${GRAPH_DB_HOST:-neo4j}
+      GRAPH_DB_PORT: ${GRAPH_DB_PORT:-7687}
+    ports:
+      - "8080:8080"
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    networks:
+      tree:

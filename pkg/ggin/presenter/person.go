@@ -3,6 +3,17 @@ package presenter
 import "github.com/lffranca/genealogicaltree/internal"
 
 func PersonToPresenters(items []*internal.Person) (values []*Person) {
+	relationshipsMap := make(map[int]*internal.Person)
+	for _, item := range items {
+		if item.ID != nil {
+			relationshipsMap[*item.ID] = item
+		}
+	}
+
+	for _, item := range items {
+		values = append(values, PersonToPresenter(item, relationshipsMap))
+	}
+
 	return
 }
 
@@ -22,7 +33,7 @@ func PersonToPresenter(item *internal.Person, relationshipsMap map[int]*internal
 					person.Relationships = append(person.Relationships, &Relationship{
 						ID:           familyItem.ID,
 						Name:         familyItem.Name,
-						Relationship: &key,
+						Relationship: key,
 					})
 				}
 			}

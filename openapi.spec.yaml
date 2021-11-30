@@ -29,6 +29,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Person'
+            application/xml:
+              schema:
+                xml:
+                  name: data
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
         '204':
           description: no content
         '400':
@@ -37,10 +44,120 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: Internal Error
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /person/{name}:
+    get:
+      summary: List people by name
+      description: |
+        Return all people by name.
+      operationId: listPersonByName
+      parameters:
+        - name: name
+          in: path
+          description: Name of person to fetch
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: person response by name
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+            application/xml:
+              schema:
+                xml:
+                  name: data
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+        '204':
+          description: no content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /person/shortest-path/{name1}/to/{name2}:
+    get:
+      summary: List people by names
+      description: |
+        Return all people by names.
+      operationId: listPersonShortestPath
+      parameters:
+        - name: name1
+          in: path
+          description: Name of person of origin to search
+          required: true
+          schema:
+            type: string
+        - name: name2
+          in: path
+          description: Name of target person to search
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: person response by name
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+            application/xml:
+              schema:
+                xml:
+                  name: data
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+        '204':
+          description: no content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/xml:
               schema:
                 $ref: '#/components/schemas/Error'
 #    post:
