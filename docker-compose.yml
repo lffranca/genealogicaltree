@@ -8,6 +8,7 @@ volumes:
 
 services:
   neo4j:
+    restart: unless-stopped
     image: neo4j
     environment:
       NEO4J_AUTH: "none"
@@ -17,7 +18,7 @@ services:
       - "7474:7474"
       - "7687:7687"
     healthcheck:
-      test: [ "CMD", "cypher-shell", "match (n) return count(n)" ]
+      test: [ "CMD", "cypher-shell", "show databases" ]
       interval: 10s
       timeout: 10s
       retries: 20
@@ -39,6 +40,7 @@ services:
       tree:
 
   app:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile
@@ -50,5 +52,7 @@ services:
     depends_on:
       neo4j:
         condition: service_healthy
+      app_import:
+        condition: service_started
     networks:
       tree:
