@@ -1,4 +1,4 @@
-openapi: "3.0.0"
+openapi: "3.0.3"
 info:
   version: 1.0.0
   title: Genealogical Tree API
@@ -16,9 +16,10 @@ servers:
 paths:
   /person:
     get:
+      summary: List people
       description: |
-        Returns people.
-      operationId: findPerson
+        Return all people.
+      operationId: listPerson
       responses:
         '200':
           description: person response
@@ -28,8 +29,16 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Person'
-        default:
-          description: unexpected error
+        '204':
+          description: no content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Error
           content:
             application/json:
               schema:

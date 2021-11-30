@@ -1,6 +1,9 @@
 package ggin
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/go-openapi/runtime/middleware"
+)
 
 func New(options Options) (*Client, error) {
 	if err := options.validate(); err != nil {
@@ -9,6 +12,7 @@ func New(options Options) (*Client, error) {
 
 	client := new(Client)
 	client.common.Client = client
+	client.specPath = options.SpecPath
 	client.person = (*personService)(&client.common)
 
 	client.app = gin.Default()
@@ -18,12 +22,28 @@ func New(options Options) (*Client, error) {
 }
 
 type Client struct {
-	common service
-	app    *gin.Engine
-	person *personService
+	common   service
+	app      *gin.Engine
+	specPath *string
+	person   *personService
 }
 
 func (pkg *Client) routes() {
+	docPath := "/swagger.yaml"
+
+	pkg.app.StaticFile(docPath, *pkg.specPath)
+
+	swaggerOpts := middleware.SwaggerUIOpts{
+		Path:    "swagger",
+		SpecURL: docPath,
+	}
+	swaggerM := middleware.SwaggerUI(swaggerOpts, nil)
+	pkg.app.GET("/swagger", gin.WrapH(swaggerM))
+
+	opts := middleware.RedocOpts{SpecURL: docPath}
+	docM := middleware.Redoc(opts, nil)
+	pkg.app.GET("/docs", gin.WrapH(docM))
+
 	v1 := pkg.app.Group("/api/v1")
 	{
 		person := v1.Group("/person")
